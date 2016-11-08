@@ -1,50 +1,50 @@
-type jquery;;
-type event;;
-type stub;;
+type jquery
+type event
+type stub
 
-type ('a,'b) attr_func = jquery -> int -> 'a -> 'b [@bs.this];;
-type attr_func_str = (string,string) attr_func;;
-type js_coord = < top : int ; left : int > Js.t
+type ('a, 'b) attr_func = jquery -> int -> 'a -> 'b [@bs.this]
+type attr_func_str = (string, string) attr_func
+type js_coord = < top: int; left: int > Js.t
 
-type t;;
+type t
 external jquery : string -> jquery = "" [@@bs.module]
 external jquery_ : jquery =  "jquery" [@@bs.module]
 external jquery' : jquery -> jquery = "jquery" [@@bs.module]
 
 (* Attributes *)
 external addClass : string -> jquery = "addClass" [@@bs.send.pipe: jquery]
-external addClass' : (string,string) attr_func -> jquery = "addClass" [@@bs.send.pipe: jquery]
+external addClass' : (string, string) attr_func -> jquery = "addClass" [@@bs.send.pipe: jquery]
 let addClass at jq =
-	match at with
-		`str s -> addClass s jq
-		| `func f -> addClass' f jq;;
+  match at with
+  | `str s  -> addClass s jq
+  | `func f -> addClass' f jq
 
 external attr_get : string -> string = "attr" [@@bs.send.pipe: jquery]
-let attr_get = attr_get;;
+let attr_get = attr_get
 
 external attr : string -> string -> jquery = "attr" [@@bs.send.pipe: jquery]
 external attr_ : 'a Js.t -> jquery = "attr" [@@bs.send.pipe: jquery]
-external attr' : (string,string) attr_func -> jquery = "attr" [@@bs.send.pipe: jquery]
+external attr' : (string, string) attr_func -> jquery = "attr" [@@bs.send.pipe: jquery]
 
 let attr at (jq : jquery) : jquery =
-	match at with
-		`kv (k,v) -> attr k v jq;
-		| `map obj -> attr_ obj jq
-		| `func f -> attr' f jq;;
+  match at with
+  | `kv (k, v) -> attr k v jq
+  | `map obj   -> attr_ obj jq
+  | `func f    -> attr' f jq
 
 
 external hasClass : string -> Js.boolean = "hasClass" [@@bs.send.pipe: jquery]
-let hasClass = hasClass;;
+let hasClass = hasClass
 
 external html_get : string = "html" [@@bs.send.pipe: jquery]
 external html : string -> jquery = "html" [@@bs.send.pipe: jquery]
-external html' : (string,string) attr_func -> jquery = "html" [@@bs.send.pipe: jquery]
+external html' : (string, string) attr_func -> jquery = "html" [@@bs.send.pipe: jquery]
 
-let html_get = html_get;;
+let html_get = html_get
 let html at (jq : jquery) : jquery =
-	match at with
-		`str s -> html s jq;
-		| `func f -> html' f jq;;
+  match at with
+  | `str s  -> html s jq
+  | `func f -> html' f jq
 
 
 external prop_get : string -> 'a Js.t = "prop" [@@bs.send.pipe: jquery]
@@ -52,64 +52,64 @@ external prop_get : string -> 'a Js.t = "prop" [@@bs.send.pipe: jquery]
 (* external prop_get_bool : string -> Js.boolean = "prop" [@@bs.send.pipe: jquery] *)
 external prop : string -> string -> jquery = "prop" [@@bs.send.pipe: jquery]
 external prop_ : 'a Js.t -> jquery = "prop" [@@bs.send.pipe: jquery]
-external prop' : (string,string) attr_func -> jquery = "prop" [@@bs.send.pipe: jquery]
+external prop' : (string, string) attr_func -> jquery = "prop" [@@bs.send.pipe: jquery]
 
 let prop_get (type t) (k : string) : [`str of t | `bool of t | `error] =
-	let p = prop_get k in
-	let ty, v = Js.Types.reify_type p in
-	match (ty : t Js.Types.t) with
-	| Js.Types.String -> `str v
-	| Js.Types.Boolean -> `bool v
-	| _ -> `error;;
+  let p = prop_get k in
+  let (ty, v) = Js.Types.reify_type p in
+    match (ty : t Js.Types.t) with
+    | Js.Types.String  -> `str v
+    | Js.Types.Boolean -> `bool v
+    | _                -> `error
 
 let prop at (jq : jquery) : jquery =
-	match at with
-		| `kv (k,v) -> prop k v jq
-		| `map obj -> prop_ obj jq
-		| `func f -> prop' f jq;;
+  match at with
+  | `kv (k, v) -> prop k v jq
+  | `map obj   -> prop_ obj jq
+  | `func f    -> prop' f jq
 
 external removeAttr : string -> jquery = "removeAttr" [@@bs.send.pipe: jquery]
-let removeAttr = removeAttr;;
+let removeAttr = removeAttr
 
 external removeClass : string -> jquery = "removeClass" [@@bs.send.pipe: jquery]
 external removeClass_ : jquery = "removeClass" [@@bs.send.pipe: jquery]
-external removeClass' : (string,string) attr_func -> jquery = "removeClass" [@@bs.send.pipe: jquery]
+external removeClass' : (string, string) attr_func -> jquery = "removeClass" [@@bs.send.pipe: jquery]
 
 let removeClass at jq =
-	match at with
-		| `void -> removeClass_ jq
-		| `str s -> removeClass s jq
-		| `func f -> removeClass' f jq;;
+  match at with
+  | `void   -> removeClass_ jq
+  | `str s  -> removeClass s jq
+  | `func f -> removeClass' f jq
 
 external removeProp : string -> jquery = "removeProp" [@@bs.send.pipe: jquery]
 
-let removeProp = removeProp;;
+let removeProp = removeProp
 
 external toggleClass : string -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
 external toggleClass_ : string -> Js.boolean -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
-external toggleClass' : (string,string) attr_func -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
-external toggleClass'' : (string,string) attr_func -> Js.boolean -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
+external toggleClass' : (string, string) attr_func -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
+external toggleClass'' : (string, string) attr_func -> Js.boolean -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
 
 let to_js_bool b = if b then Js.true_ else Js.false_
 
 let toggleClass at jq =
-	match at with
-		`str s -> toggleClass s jq
-		| `strs ss -> toggleClass (String.concat " " ss) jq
-		| `strb (s,b) -> toggleClass_ s (to_js_bool b) jq
-		| `strs_b (ss,b) -> toggleClass_ (String.concat " " ss) (to_js_bool b) jq
-		| `func f -> toggleClass' f jq
-		| `func_b (f,b) -> toggleClass'' f b jq
+  match at with
+  | `str s          -> toggleClass s jq
+  | `strs ss        -> toggleClass (String.concat " " ss) jq
+  | `strb (s, b)    -> toggleClass_ s (to_js_bool b) jq
+  | `strs_b (ss, b) -> toggleClass_ (String.concat " " ss) (to_js_bool b) jq
+  | `func f         -> toggleClass' f jq
+  | `func_b (f, b)  -> toggleClass'' f b jq
 
 external val_get : string = "val" [@@bs.send.pipe: jquery]
 let val_get = val_get
 
 external val_ : string -> jquery = "val" [@@bs.send.pipe: jquery]
-external val_' : (string,string) attr_func -> jquery = "val" [@@bs.send.pipe: jquery]
+external val_' : (string, string) attr_func -> jquery = "val" [@@bs.send.pipe: jquery]
 let val_ at jq =
-	match at with
-		`str s -> val_ s jq
-		| `func f -> val_' f jq
+  match at with
+  | `str s  -> val_ s jq
+  | `func f -> val_' f jq
 
 (* CSS: https://api.jquery.com/category/css/ *)
 external css_get : string -> string = "css" [@@bs.send.pipe: jquery]
@@ -121,10 +121,10 @@ external css : string -> string -> jquery = "css" [@@bs.send.pipe: jquery]
 external css_ : 'a Js.t -> jquery = "css" [@@bs.send.pipe: jquery]
 external css' : string -> attr_func_str -> jquery = "css" [@@bs.send.pipe: jquery]
 let css at jq =
-	match at with
-		| `kv (k,v) -> css k v jq
-		| `map obj -> css_ obj jq
-		| `func (n,f) -> css' n f jq;;
+  match at with
+  | `kv (k, v)   -> css k v jq
+  | `map obj     -> css_ obj jq
+  | `func (n, f) -> css' n f jq
 
 external height_get : int = "height" [@@bs.send.pipe: jquery]
 let height_get = height_get
@@ -133,10 +133,10 @@ external height : string -> jquery = "height" [@@bs.send.pipe: jquery]
 external height_ : int -> jquery = "height" [@@bs.send.pipe: jquery]
 external height' : (int, 'a Js.t) attr_func -> jquery = "height" [@@bs.send.pipe: jquery]
 let height at jq =
-	match at with
-		`str v -> height v jq
-		| `int v -> height_ v jq
-		| `func f -> height' f jq;;
+  match at with
+  | `str v  -> height v jq
+  | `int v  -> height_ v jq
+  | `func f -> height' f jq
 
 external innerHeight : int = "innerHeight" [@@bs.send.pipe: jquery]
 let innerHeight = innerHeight
@@ -145,13 +145,13 @@ external innerWidth : int = "innerWidth" [@@bs.send.pipe: jquery]
 let innerWidth = innerWidth
 
 external cssHooks : 'a Js.t = "" [@@bs.module "jquery"]
-let cssHooks = cssHooks;;
+let cssHooks = cssHooks
 
 external cssNumber : 'a Js.t = "" [@@bs.module "jquery"]
-let cssNumber = cssNumber;;
+let cssNumber = cssNumber
 
 external escapeSelector : string -> string = "" [@@bs.module "jquery"]
-let escapeSelector = escapeSelector;;
+let escapeSelector = escapeSelector
 
 external offset_get :  js_coord = "offset" [@@bs.send.pipe: jquery]
 let offset_get = offset_get
@@ -159,9 +159,9 @@ let offset_get = offset_get
 external offset :  js_coord -> jquery = "offset" [@@bs.send.pipe: jquery]
 external offset' : (js_coord, js_coord) attr_func -> jquery = "offset" [@@bs.send.pipe: jquery]
 let offset at jq =
-	match at with
-		`obj v -> offset v jq
-		| `func f -> offset' f jq;;
+  match at with
+  | `obj v  -> offset v jq
+  | `func f -> offset' f jq
 
 external outerHeight : int = "outerHeight" [@@bs.send.pipe: jquery]
 external outerHeight' : Js.boolean -> int = "outerHeight" [@@bs.send.pipe: jquery]
@@ -195,10 +195,10 @@ external width : string -> jquery = "width" [@@bs.send.pipe: jquery]
 external width_ : int -> jquery = "width" [@@bs.send.pipe: jquery]
 external width' : (int, 'a Js.t) attr_func -> jquery = "width" [@@bs.send.pipe: jquery]
 let width at jq =
-	match at with
-		`str v -> width v jq
-		| `int v -> width_ v jq
-		| `func f -> width' f jq;;
+  match at with
+  | `str v  -> width v jq
+  | `int v  -> width_ v jq
+  | `func f -> width' f jq
 
 (* Manipulation - Copying *)
 external clone : Js.boolean -> Js.boolean -> jquery = "clone" [@@bs.send.pipe: jquery]
@@ -217,20 +217,20 @@ external wrapInner' : (jquery -> int -> 'a Js.t [@bs.this]) -> jquery = "wrapInn
 
 (* Manipulation - DOM Insertion, Inside *)
 external append : 'a Js.t -> jquery = "append" [@@bs.send.pipe: jquery]
-external append' : (string,'a Js.t) attr_func -> jquery = "append" [@@bs.send.pipe: jquery]
+external append' : (string, 'a Js.t) attr_func -> jquery = "append" [@@bs.send.pipe: jquery]
 external appendTo : jquery -> jquery = "appendTo" [@@bs.send.pipe: jquery]
-external appendTo' : (string,'a Js.t) attr_func -> jquery = "appendTo" [@@bs.send.pipe: jquery]
+external appendTo' : (string, 'a Js.t) attr_func -> jquery = "appendTo" [@@bs.send.pipe: jquery]
 external text_get : string = "text" [@@bs.send.pipe: jquery]
 external text : 'a Js.t -> jquery = "text" [@@bs.send.pipe: jquery]
-external text' : (string,string) attr_func -> jquery = "text" [@@bs.send.pipe: jquery]
+external text' : (string, string) attr_func -> jquery = "text" [@@bs.send.pipe: jquery]
 
 (* Manipulation - DOM Insertion, Outside *)
 external after : 'a Js.t -> jquery = "after" [@@bs.send.pipe: jquery]
 external after' : (jquery -> int -> 'a Js.t [@bs.this]) -> jquery = "after" [@@bs.send.pipe: jquery]
-external after'' : (string,'a Js.t) attr_func -> jquery = "after" [@@bs.send.pipe: jquery]
+external after'' : (string, 'a Js.t) attr_func -> jquery = "after" [@@bs.send.pipe: jquery]
 external before : 'a Js.t -> jquery = "before" [@@bs.send.pipe: jquery]
 external before'' : (jquery -> int -> 'a Js.t [@bs.this]) -> jquery = "before" [@@bs.send.pipe: jquery]
-external before'' : (string,'a Js.t) attr_func -> jquery = "before" [@@bs.send.pipe: jquery]
+external before'' : (string, 'a Js.t) attr_func -> jquery = "before" [@@bs.send.pipe: jquery]
 external insertAfter : 'a Js.t -> jquery = "" [@@bs.send.pipe: jquery]
 external insertBefore : 'a Js.t -> jquery = "" [@@bs.send.pipe: jquery]
 
@@ -310,10 +310,8 @@ external blur : jquery = "" [@@bs.send.pipe: jquery]
 external hashchange :  (jquery -> 'a Js.t -> Js.boolean [@bs.this]) -> jquery = "" [@@bs.send.pipe: jquery]
 
 
-let jquery = jquery;;
-(* let addClass = addClass;;
- *)let css = css;;
-let outerHeight = outerHeight;;
-(* let cssNumber = cssNumber jquery_;; *)
-
-
+let jquery = jquery
+(* let addClass = addClass
+ *)let css = css
+let outerHeight = outerHeight
+(* let cssNumber = cssNumber jquery_ *)
