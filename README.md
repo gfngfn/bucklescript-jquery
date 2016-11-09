@@ -33,3 +33,4 @@ Only a small fragment of testing has been added.
 ## Copyright
 
 Copyright 2016 by Nebuta. MIT license.
+(Extension to the original software: Copyright 2016 by Takashi SUWA. MIT license.)
