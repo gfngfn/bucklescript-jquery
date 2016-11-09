@@ -7,91 +7,93 @@ type attr_func_str = (string, string) attr_func
 type js_coord = < top: int; left: int > Js.t
 
 type t
-external jquery : string -> jquery = "" [@@bs.module]
+external jquery : string -> jquery = "jquery" [@@bs.module]
 external jquery_ : jquery =  "jquery" [@@bs.module]
 external jquery' : jquery -> jquery = "jquery" [@@bs.module]
 
+
+external afterLoadingHtml : (unit -> unit) -> unit = "jquery" [@@bs.module]
+
+
 (* Attributes *)
-external addClass : string -> jquery = "addClass" [@@bs.send.pipe: jquery]
-external addClass' : (string, string) attr_func -> jquery = "addClass" [@@bs.send.pipe: jquery]
+external addClass_str  : string -> jquery                     = "addClass" [@@bs.send.pipe: jquery]
+external addClass_func : (string, string) attr_func -> jquery = "addClass" [@@bs.send.pipe: jquery]
 let addClass at jq =
   match at with
-  | `str s  -> addClass s jq
-  | `func f -> addClass' f jq
+  | `str s  -> addClass_str s jq
+  | `func f -> addClass_func f jq
 
-external attr_get : string -> string = "attr" [@@bs.send.pipe: jquery]
-let attr_get = attr_get
+external getAttr : string -> string = "attr" [@@bs.send.pipe: jquery]
 
-external attr : string -> string -> jquery = "attr" [@@bs.send.pipe: jquery]
-external attr_ : 'a Js.t -> jquery = "attr" [@@bs.send.pipe: jquery]
-external attr' : (string, string) attr_func -> jquery = "attr" [@@bs.send.pipe: jquery]
 
-let attr at (jq : jquery) : jquery =
+external setAttr_kv   : string -> string -> jquery           = "attr" [@@bs.send.pipe: jquery]
+external setAttr_map  : 'a Js.t -> jquery                    = "attr" [@@bs.send.pipe: jquery]
+external setAttr_func : (string, string) attr_func -> jquery = "attr" [@@bs.send.pipe: jquery]
+let setAttr at (jq : jquery) : jquery =
   match at with
-  | `kv (k, v) -> attr k v jq
-  | `map obj   -> attr_ obj jq
-  | `func f    -> attr' f jq
+  | `kv (k, v) -> setAttr_kv k v jq
+  | `map obj   -> setAttr_map obj jq
+  | `func f    -> setAttr_func f jq
 
 
 external hasClass : string -> Js.boolean = "hasClass" [@@bs.send.pipe: jquery]
-let hasClass = hasClass
 
-external html_get : string = "html" [@@bs.send.pipe: jquery]
-external html : string -> jquery = "html" [@@bs.send.pipe: jquery]
-external html' : (string, string) attr_func -> jquery = "html" [@@bs.send.pipe: jquery]
 
-let html_get = html_get
-let html at (jq : jquery) : jquery =
+external getHtml : string = "html" [@@bs.send.pipe: jquery]
+
+
+external setHtml_str  : string -> jquery = "html" [@@bs.send.pipe: jquery]
+external setHtml_func : (string, string) attr_func -> jquery = "html" [@@bs.send.pipe: jquery]
+let setHtml at (jq : jquery) : jquery =
   match at with
-  | `str s  -> html s jq
-  | `func f -> html' f jq
+  | `str s  -> setHtml_str s jq
+  | `func f -> setHtml_func f jq
 
 
-external prop_get : string -> 'a Js.t = "prop" [@@bs.send.pipe: jquery]
-
-(* external prop_get_bool : string -> Js.boolean = "prop" [@@bs.send.pipe: jquery] *)
-external prop : string -> string -> jquery = "prop" [@@bs.send.pipe: jquery]
-external prop_ : 'a Js.t -> jquery = "prop" [@@bs.send.pipe: jquery]
-external prop' : (string, string) attr_func -> jquery = "prop" [@@bs.send.pipe: jquery]
-
-let prop_get (type t) (k : string) : [`str of t | `bool of t | `error] =
-  let p = prop_get k in
+external getPropAux : string -> 'a Js.t = "prop" [@@bs.send.pipe: jquery]
+let getProp (type t) (k : string) : [`str of t | `bool of t | `error] =
+  let p = getPropAux k in
   let (ty, v) = Js.Types.reify_type p in
     match (ty : t Js.Types.t) with
     | Js.Types.String  -> `str v
     | Js.Types.Boolean -> `bool v
     | _                -> `error
 
+
+(* external prop_get_bool : string -> Js.boolean = "prop" [@@bs.send.pipe: jquery] *)
+external prop_kv   : string -> string -> jquery           = "prop" [@@bs.send.pipe: jquery]
+external prop_map  : 'a Js.t -> jquery                    = "prop" [@@bs.send.pipe: jquery]
+external prop_func : (string, string) attr_func -> jquery = "prop" [@@bs.send.pipe: jquery]
 let prop at (jq : jquery) : jquery =
   match at with
-  | `kv (k, v) -> prop k v jq
-  | `map obj   -> prop_ obj jq
-  | `func f    -> prop' f jq
+  | `kv (k, v) -> prop_kv k v jq
+  | `map obj   -> prop_map obj jq
+  | `func f    -> prop_func f jq
+
 
 external removeAttr : string -> jquery = "removeAttr" [@@bs.send.pipe: jquery]
-let removeAttr = removeAttr
 
-external removeClass : string -> jquery = "removeClass" [@@bs.send.pipe: jquery]
-external removeClass_ : jquery = "removeClass" [@@bs.send.pipe: jquery]
-external removeClass' : (string, string) attr_func -> jquery = "removeClass" [@@bs.send.pipe: jquery]
 
+external removeClass_void : jquery                               = "removeClass" [@@bs.send.pipe: jquery]
+external removeClass_str  : string -> jquery                     = "removeClass" [@@bs.send.pipe: jquery]
+external removeClass_func : (string, string) attr_func -> jquery = "removeClass" [@@bs.send.pipe: jquery]
 let removeClass at jq =
   match at with
-  | `void   -> removeClass_ jq
-  | `str s  -> removeClass s jq
-  | `func f -> removeClass' f jq
+  | `void   -> removeClass_void jq
+  | `str s  -> removeClass_str s jq
+  | `func f -> removeClass_func f jq
+
 
 external removeProp : string -> jquery = "removeProp" [@@bs.send.pipe: jquery]
 
-let removeProp = removeProp
+
+let to_js_bool b = if b then Js.true_ else Js.false_
+
 
 external toggleClass : string -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
 external toggleClass_ : string -> Js.boolean -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
 external toggleClass' : (string, string) attr_func -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
 external toggleClass'' : (string, string) attr_func -> Js.boolean -> jquery = "toggleClass" [@@bs.send.pipe: jquery]
-
-let to_js_bool b = if b then Js.true_ else Js.false_
-
 let toggleClass at jq =
   match at with
   | `str s          -> toggleClass s jq
@@ -112,22 +114,22 @@ let val_ at jq =
   | `func f -> val_' f jq
 
 (* CSS: https://api.jquery.com/category/css/ *)
-external css_get : string -> string = "css" [@@bs.send.pipe: jquery]
-external css_get' : string array -> 'a Js.t = "css" [@@bs.send.pipe: jquery]
-let css_get = css_get
-let css_get' = css_get'
+external getCss : string -> string = "css" [@@bs.send.pipe: jquery]
+external getCssByArray : string array -> 'a Js.t = "css" [@@bs.send.pipe: jquery]
 
-external css : string -> string -> jquery = "css" [@@bs.send.pipe: jquery]
-external css_ : 'a Js.t -> jquery = "css" [@@bs.send.pipe: jquery]
-external css' : string -> attr_func_str -> jquery = "css" [@@bs.send.pipe: jquery]
-let css at jq =
+
+external setCss_kv   : string -> string -> jquery        = "css" [@@bs.send.pipe: jquery]
+external setCss_map  : 'a Js.t -> jquery                 = "css" [@@bs.send.pipe: jquery]
+external setCss_func : string -> attr_func_str -> jquery = "css" [@@bs.send.pipe: jquery]
+let setCss at jq =
   match at with
-  | `kv (k, v)   -> css k v jq
-  | `map obj     -> css_ obj jq
-  | `func (n, f) -> css' n f jq
+  | `kv (k, v)   -> setCss_kv k v jq
+  | `map obj     -> setCss_map obj jq
+  | `func (n, f) -> setCss_func n f jq
+
 
 external height_get : int = "height" [@@bs.send.pipe: jquery]
-let height_get = height_get
+
 
 external height : string -> jquery = "height" [@@bs.send.pipe: jquery]
 external height_ : int -> jquery = "height" [@@bs.send.pipe: jquery]
@@ -312,6 +314,6 @@ external hashchange :  (jquery -> 'a Js.t -> Js.boolean [@bs.this]) -> jquery = 
 
 let jquery = jquery
 (* let addClass = addClass
- *)let css = css
+ *)
 let outerHeight = outerHeight
 (* let cssNumber = cssNumber jquery_ *)

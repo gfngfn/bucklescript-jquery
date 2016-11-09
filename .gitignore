@@ -1,3 +1,5 @@
-.DS_Store
-node_modules
-
+*~
+old/
+*.js
+*.cmi
+*.cmj
